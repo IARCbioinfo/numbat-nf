@@ -1,84 +1,51 @@
-# Name
-## Empty template for nextflow pipelines (short description)
+# PROJECT 4: Implement a bioinformatic workflow to call copy number variants reconstruct cell phylogenies from single-cell sequencing data
 
-[![CircleCI](https://circleci.com/gh/IARCbioinfo/template-nf.svg?style=svg)](https://circleci.com/gh/IARCbioinfo/template-nf)
-[![Docker Hub](https://img.shields.io/badge/docker-ready-blue.svg)](https://hub.docker.com/r/iarcbioinfo/template-nf/)
-[![https://www.singularity-hub.org/static/img/hosted-singularity--hub-%23e32929.svg](https://www.singularity-hub.org/static/img/hosted-singularity--hub-%23e32929.svg)](https://singularity-hub.org/collections/1404)
-[![DOI](https://zenodo.org/badge/94193130.svg)](https://zenodo.org/badge/latestdoi/94193130)
+Goal of this project is to implement a workflow in nextflow to preprocess and use numbat software for the analysis of single-cell sequencing data to study Copy number variations (CNVs).
 
-![Workflow representation](template-nf.png)
+To use this workflow, please follow these steps. 
 
-## Description
-...
+## Step 0: Installation
 
-## Dependencies
+Follow the step **Installation** on this page :
+https://kharchenkolab.github.io/numbat/articles/numbat.html
 
-1. This pipeline is based on [nextflow](https://www.nextflow.io). As we have several nextflow pipelines, we have centralized the common information in the [IARC-nf](https://github.com/IARCbioinfo/IARC-nf) repository. Please read it carefully as it contains essential information for the installation, basic usage and configuration of nextflow and our pipelines.
-2. External software:
-- ...
-- ...
+## Step 1: Build bam index
+```samtools index -b BAME_FILE.bam```
 
-You can avoid installing all the external software by only installing Docker. See the [IARC-nf](https://github.com/IARCbioinfo/IARC-nf) repository for more information.
+Please change BAME_FILE by the file you wanna use and make sure you have samtools.
 
+## Step 2: Launch numbat
+```nextflow run script_nf.nf [--OPTIONS] OPTION```
 
-## Input
-  | Type      | Description     |
-  |-----------|---------------|
-  | input1    | ...... |
-  | input2    | ...... |
+Using the following documentary, all parameter are necessary.
+```
+--label LABEL        Individual label. One per run.
+--samples SAMPLES    Sample name
+--bams BAMS          BAM file
+--barcodes BARCODES  Cell barcode file
+                       (e.g. "filtered_gene_bc_matrices/hg19/barcodes.tsv")
+--gmap GMAP          Path to genetic map provided by Eagle2 (e.g.
+                       Eagle_v2.4.1/tables/genetic_map_hg38_withX.txt.gz)
+--eagle EAGLE        Path to Eagle2 binary file 
+--snpvcf SNPVCF      SNP VCF for pileup (e.g. genome1K.phase3.SNP_AF5e2.chr1toX.hg38.vcf)
+--paneldir PANELDIR  Directory to phasing reference panel (e.g. 1000G_hg38)
+--outdir OUTDIR      Output directory
+--matrix MATRIX      Gene x cell integer UMI count matrix
+                       (e.g. filtered_gene_bc_matrices/hg19/matrix.mtx)
+--ncores NCORES      Number of cores to use.
+```
 
-  Specify the test files location
+You may change in script_nf.nf the default value for :
+  - params.gmap
+  - params.snpvcs
+  - params.paneldir
+  - params.ncores
+  - params.eagle
+    
+To your locals path, then it can be fixed for any run with these references. 
 
-## Parameters
+For example, if your local path are fixe, the bash command may look like : 
 
-  * #### Mandatory
-| Name      | Example value | Description     |
-|-----------|---------------|-----------------|
-| --param1    |            xx | ...... |
-| --param2    |            xx | ...... |
+```nextflow run script_nf.nf --samples "example" --bams "example.bam" --barcodes "barcodes.bam" --matrix "matrix.bam" --outdir "result"```
 
-  * #### Optional
-| Name      | Default value | Description     |
-|-----------|---------------|-----------------|
-| --param3   |            xx | ...... |
-| --param4    |            xx | ...... |
-
-  * #### Flags
-
-Flags are special parameters without value.
-
-| Name      | Description     |
-|-----------|-----------------|
-| --help    | Display help |
-| --flag2    |      .... |
-
-
-## Usage
-  ```
-  ...
-  ```
-
-## Output
-  | Type      | Description     |
-  |-----------|---------------|
-  | output1    | ...... |
-  | output2    | ...... |
-
-
-## Detailed description (optional section)
-...
-
-## Directed Acyclic Graph
-[![DAG](dag.png)](http://htmlpreview.github.io/?https://github.com/IARCbioinfo/template-nf/blob/master/dag.html)
-
-## Contributions
-
-  | Name      | Email | Description     |
-  |-----------|---------------|-----------------|
-  | contrib1*    |            xx | Developer to contact for support (link to specific gitter chatroom) |
-  | contrib2    |            xx | Developer |
-  | contrib3    |            xx | Tester |
-
-## References (optional)
-
-## FAQ (optional)
+## Step 3: Results
