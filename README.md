@@ -9,12 +9,14 @@ To use this workflow, please follow these steps.
 Follow the step **Installation** on this page :
 https://kharchenkolab.github.io/numbat/articles/numbat.html
 
-## Step 1: Build bam index
+## Step 1: Build bam index (if needed)
+To work, the bam need to come with his index file (.bai), to do that you can use this command:
+
 ```samtools index -b BAME_FILE.bam```
 
 Please change BAME_FILE by the file you wanna use and make sure you have samtools.
 
-## Step 2: Launch numbat
+## Step 2: Launch workflow
 ```nextflow run script_nf.nf [--OPTIONS] OPTION```
 
 Using the following documentary, all parameter are necessary.
