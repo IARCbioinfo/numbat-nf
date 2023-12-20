@@ -32,7 +32,8 @@ process step1{
     path paneldir
 
     output:
-        path "${sample}_allele_counts.tsv.gz"
+        tuple path("*_allele_counts.tsv.gz"), path(matrix)
+        tuple path("phasing*"), path("pileup")
     publishDir "${params.output_folder}", mode: "copy"
 
     script:
@@ -52,7 +53,7 @@ process step2{
     cpus '2'
 
     input:
-        path step1_output
+        tuple path(allele_counts), path(matrix)
 
     output:
         path "*"
@@ -60,7 +61,7 @@ process step2{
     
     script:
     """
-    Rscript $projectDir/bin/nextflowprojet.R ${params.matrix} ${step1_output} "./"
+    Rscript $projectDir/bin/nextflowprojet.R $matrix $allele_counts "./"
     """
 }
 
@@ -73,5 +74,5 @@ workflow{
     paneldir = file(params.paneldir)
 
     output_step1_ch = step1(bams,matrix,barcodes,gmap,snpvcf,paneldir)
-    step2(output_step1_ch)
+    step2(output_step1_ch[0])
     }
