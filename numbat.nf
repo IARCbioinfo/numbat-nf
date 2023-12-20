@@ -43,7 +43,7 @@ process step1{
     }
     else {
     """
-    Rscript $projectDir/bin/pileup_and_phase.R --label $params.label --samples $params.samples --bams ${bambai[0]} --barcodes $barcodes --gmap $gmap --snpvcf $snpvcf --paneldir $paneldir --output_folder "./" --ncores $params.cpu --eagle $params.eagle
+    Rscript $projectDir/bin/pileup_and_phase.R --label $params.label --samples $params.samples --bams ${bambai[0]} --barcodes $barcodes --gmap $gmap --snpvcf $snpvcf --paneldir $paneldir --outdir "./" --ncores $params.cpu --eagle $params.eagle
     """
     }
 }
