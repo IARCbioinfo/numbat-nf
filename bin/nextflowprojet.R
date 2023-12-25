@@ -1,13 +1,14 @@
 args = commandArgs(trailingOnly = TRUE)
 
 library(numbat)
+library(data.table)
 
-count_mat_ATC2 = readRDS(args[1])
+count_mat_ATC2 = fread(args[1],skip=2) #readRDS(args[1])
 
-df_allele_ATC2 = readRDS(args[2])
+df_allele_ATC2 = fread(args[2],h=T) #readRDS(args[2])
 
 out_dir = args[3]
-ncores = 4
+ncores = args[4]
 
 # run
 out = run_numbat(
