@@ -19,7 +19,7 @@ features$V2[features$V1=="ENSG00000271147"] = "ARMCX5-GPRASP2.2" #"ARMCX5-GPRASP
 features$V2[features$V1=="ENSG00000269226"] = "TMSB15B.2" #"TMSB15B"
 
 barcodes = fread(args[6],header = F)
-colnames(count_mat) = barcodes
+colnames(count_mat) = barcodes$V1
 rownames(count_mat) = features$V2
 
 df_allele = fread(args[2],h=T) #readRDS(args[2])
