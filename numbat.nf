@@ -30,17 +30,16 @@ log.info ""
 params.label = "run_default"
 params.samples = "run_default"
 params.input_file = null
-params.bams = null //'default.bam' //To Modify, and don't forget to put index (.bai) in same directory
-params.barcodes = null //"cell_barcodes_v2.txt" 
+params.bams = null 
 params.gmap = "/Eagle_v2.4.1/tables/genetic_map_hg38_withX.txt.gz" 
 params.snpvcf = "/data/genome1K.phase3.SNP_AF5e2.chr1toX.hg38.vcf" 
 params.paneldir = "/data/1000G_hg38"
 params.output_folder = "numbat_results"
 params.cpu = "8"
 params.mem = 10
-params.matrix = null //"filtered_gene_bc_matrices/hg38/matrix.mtx" //To modify
+params.matrix_folder = null //"filtered_gene_bc_matrices/"
 params.help = null
-params.eagle = "/home/Eagle_v2.4.1" //To modify
+params.eagle = "/home/Eagle_v2.4.1" 
 
 
 if (params.help) {
@@ -51,7 +50,8 @@ if (params.help) {
     log.info "nextflow run iarcbioinfo/numbat-nf [-with-docker] --input_file input.tsv [OPTIONS]"
     log.info ""
     log.info "Mandatory arguments:"
-    log.info "--bams                      <PATH>                      <DESCRIPTION>"
+    log.info "--input_file                PATH                      Path to input file with columns ID, matrix_folder, and bam."
+    log.info "--bams                      PATH                      Path to bam file."
     log.info ""
     log.info "Optional arguments:"
     log.info '--output_folder  STRING                 Output folder (default: .).'
@@ -77,13 +77,13 @@ process pileup_and_phase{
     tag {ID}
 
     input:
-    tuple val(ID), path(matrix), path(barcodes), path(bam), path(bai)
+    tuple val(ID), path(matrix), path(features), path(barcodes), path(bam), path(bai)
     path gmap
     path snpvcf
     path paneldir
 
     output:
-        tuple path("*_allele_counts.tsv.gz"), path(matrix)
+        tuple path("*_allele_counts.tsv.gz"), path(matrix), path(features), path(barcodes)
         tuple path("phasing*"), path("pileup")
     publishDir "${params.output_folder}/intermediate/allele_counts", mode: "copy", pattern: "*_allele_counts.tsv.gz"
     publishDir "${params.output_folder}/intermediate", mode: "copy", pattern: "phasing*"
@@ -98,9 +98,10 @@ process pileup_and_phase{
 process numbat{
     cpus params.cpu
     memory params.mem+'GB'
+    tag {ID}
 
     input:
-        tuple path(allele_counts), path(matrix)
+        tuple val(ID), path(allele_counts), path(matrix), path(features), path(barcodes)
 
     output:
         path "*"
@@ -108,7 +109,7 @@ process numbat{
     
     script:
     """
-    Rscript $projectDir/bin/nextflowprojet.R $matrix $allele_counts "./" $params.cpu
+    Rscript $projectDir/bin/numbat.R $matrix $allele_counts "./" $params.cpu $features $barcodes
     """
 }
 
@@ -116,12 +117,11 @@ workflow{
     if(params.input_file){
 	bams = Channel.fromPath("${params.input_file}")
      	          .splitCsv( header: true, sep: '\t', strip: true )
-	       .map { row -> [ row.ID , row.matrix , row.barcodes, file(row.bam), file(row.bam+'.bai') ] }
+	       .map { row -> [ row.ID , file(row.matrix_folder+"/matrix.mtx*") , file(row.matrix_folder+"/features.tsv*"), file(row.matrix_folder+"/barcodes.tsv*"), file(row.bam), file(row.bam+'.bai') ] }
 	       .view()
     }else{
         bams     = Channel.fromFilePairs( params.bams+'{,.bai}' ).view() //to modify if needed to concatenate barcondes and matrix
-        matrix   = Channel.fromPath(params.matrix)
-        barcodes = Channel.fromPath(params.barcodes)
+        matrix_files = Channel.fromPath(params.matrix_folder)
     }
     gmap     = file(params.gmap)
     snpvcf   = file(params.snpvcf)
