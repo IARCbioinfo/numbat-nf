@@ -83,7 +83,7 @@ process pileup_and_phase{
     path paneldir
 
     output:
-        tuple path("*_allele_counts.tsv.gz"), path(matrix), path(features), path(barcodes)
+        tuple val(ID), path("*_allele_counts.tsv.gz"), path(matrix), path(features), path(barcodes)
         tuple path("phasing*"), path("pileup")
     publishDir "${params.output_folder}/intermediate/allele_counts", mode: "copy", pattern: "*_allele_counts.tsv.gz"
     publishDir "${params.output_folder}/intermediate", mode: "copy", pattern: "phasing*"
