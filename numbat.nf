@@ -90,6 +90,7 @@ process pileup_and_phase{
 
     script:
     """
+    if [ ! -e $bai ] ; then echo "bai symlink not valid, regenerate"; unlink $bai; samtools index $bam ; fi
     Rscript $projectDir/bin/pileup_and_phase.R --label $ID --samples $ID --bams $bam --barcodes $barcodes --gmap $gmap --snpvcf $snpvcf --paneldir $paneldir --outdir "./" --ncores $params.cpu --eagle $params.eagle
     mv phasing.log phasing/${ID}_phasing.log
     """
@@ -105,7 +106,7 @@ process numbat{
 
     output:
         path "*"
-    publishDir "${params.output_folder}/results", mode: "copy"
+    publishDir "${params.output_folder}/results/${ID}", mode: "copy"
     
     script:
     """
